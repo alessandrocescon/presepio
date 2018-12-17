@@ -33,6 +33,7 @@
 #define STAR1DELAY 400
 #define STAR2DELAY 400
 #define COMETDELAY 400
+#define BGDELAY 100
 
 //SWITCH TEMPO
 #define DAYSWITCH 27000
@@ -64,7 +65,11 @@ unsigned long previousDayMillis = 0;
 unsigned long previousNightMillis = 0;
 unsigned long previousSkyMillis = 0;
 unsigned long previousSkydownMillis = 0;
+unsigned long previousbgupMillis = 0;
+unsigned long previousbgdownMillis = 0;
+
 int daybr=0;
+int bgbr=0;
 
 int is=0;
 int stp=0;
@@ -94,7 +99,6 @@ void setup()
   backleds.show();
   homeleds.show();
 
-  
   // declare pin 9 to be an output:
   pinMode(STAR1PIN, OUTPUT);
   pinMode(STAR2PIN, OUTPUT);
@@ -117,15 +121,17 @@ void loop()
      Serial.println("night ");
   }
   if (tm > SKYUPSWITCH && tm < SKYDOWNSWITCH && daybr <= 255) {
-     skyup(); 
+     skyup();
      star1up();
      star2up();
+     bgup();
      Serial.println("skyup ");
   } 
   if (tm > SKYDOWNSWITCH && daybr >= 0) {
      skydown(); 
      star1down();
      star2down();
+     bgdown();
      Serial.println("skydown ");
   } 
   fire();
@@ -146,31 +152,36 @@ void day() {
      previousDayMillis = dayMillis;
      for (int ip=0; ip<SUNN; ip++)
         {
-          sunleds.setPixelColor(ip,225,80,50);          sunleds.setBrightness(daybr);
+          sunleds.setPixelColor(ip,225,80,50);
+          sunleds.setBrightness(daybr);
         }
      sunleds.show();
     Serial.print("day ");Serial.print(daybr);Serial.print("-");Serial.print(tm);Serial.print("\n");
      if (daybr < 255) {
        daybr++;
     };
-    if (daybr > 50 && daybr < 75) {     
+    if (daybr > 50 && daybr < 75) {
      }
     if (daybr > 75 && daybr < 100) {
-       homeleds.setPixelColor(6,0,0,0);       homeleds.setPixelColor(7,0,0,0);
+       homeleds.setPixelColor(6,0,0,0);
+       homeleds.setPixelColor(7,0,0,0);
        homeleds.show();
     }
     if (daybr > 100 && daybr < 125) {
        homeleds.setPixelColor(2,0,0,0);
-homeleds.setPixelColor(3,0,0,0);
+       homeleds.setPixelColor(3,0,0,0);
        homeleds.show();
     }
     if (daybr > 125 && daybr < 150) {
-       homeleds.setPixelColor(0,0,0,0);     homeleds.setPixelColor(1,0,0,0);
+       homeleds.setPixelColor(0,0,0,0);
+       homeleds.setPixelColor(1,0,0,0);
        homeleds.show();
     }
     if (daybr > 150 && daybr < 175) {
-       homeleds.setPixelColor(4,0,0,0);       homeleds.setPixelColor(5,0,0,0);
-homeleds.setPixelColor(8,0,0,0);       homeleds.setPixelColor(9,0,0,0);
+       homeleds.setPixelColor(4,0,0,0);
+       homeleds.setPixelColor(5,0,0,0);
+       homeleds.setPixelColor(8,0,0,0);
+       homeleds.setPixelColor(9,0,0,0);
        homeleds.show();
     }
   }
@@ -190,20 +201,25 @@ void night() {
     daybr--;
     }
     if (daybr > 75 && daybr < 100) {
-       homeleds.setPixelColor(6,255,100,0);       homeleds.setPixelColor(7,255,100,0);
-homeleds.show();
+       homeleds.setPixelColor(6,255,100,0);
+       homeleds.setPixelColor(7,255,100,0);
+       homeleds.show();
     }
     if (daybr > 50 && daybr < 75) {
-       homeleds.setPixelColor(2,255,100,0);       homeleds.setPixelColor(3,255,100,0);
+       homeleds.setPixelColor(2,255,100,0);
+       homeleds.setPixelColor(3,255,100,0);
        homeleds.show();
     }
     if (daybr > 25 && daybr < 50) {
-       homeleds.setPixelColor(0,255,100,0);       homeleds.setPixelColor(1,255,100,0);
+       homeleds.setPixelColor(0,255,100,0);
+       homeleds.setPixelColor(1,255,100,0);
        homeleds.show();
     }
     if (daybr > 0 && daybr < 25) {
-       homeleds.setPixelColor(4,255,100,0);      homeleds.setPixelColor(5,255,100,0);
-homeleds.setPixelColor(8,255,100,0);      homeleds.setPixelColor(9,255,100,0);            
+       homeleds.setPixelColor(4,255,100,0);
+       homeleds.setPixelColor(5,255,100,0);
+       homeleds.setPixelColor(8,255,100,0);
+       homeleds.setPixelColor(9,255,100,0);
        homeleds.show();
     }
   }
@@ -261,7 +277,6 @@ void cometup() {
 }
 void star1up() {
     unsigned long star1Millis = tm;
-
     if (star1Millis - previousStar1Millis >= STAR1DELAY) {
        previousStar1Millis = star1Millis;
        analogWrite(STAR1PIN, is);
@@ -277,14 +292,13 @@ void star1up() {
        if ( is <= 145) {
          stp=strstp;
        }  
-       is=is+stp;      
-        }    
+       is=is+stp;
+        }
        Serial.print("star1-");Serial.print(stp);Serial.print("-");Serial.print(is);Serial.print("\n");
     }
 }
 void star2up() {
     unsigned long star2Millis = tm;
- 
     if (star2Millis - previousStar2Millis >= STAR2DELAY) {
        previousStar2Millis = star2Millis;
        analogWrite(STAR2PIN, is2);
@@ -292,21 +306,19 @@ void star2up() {
         is2++;
         }
         else {
-       
        if ( is2 >= (255-strstp2)) {
          stp2=-strstp2;
-       }  
+       }
        if ( is2 <= 127) {
          stp2=strstp2;
-       }  
-       is2=is2+stp2;      
-        }    
+       }
+       is2=is2+stp2;
+        }
         Serial.print("star2-");Serial.print(stp2);Serial.print("-");Serial.print(is2);Serial.print("\n");
     }
 }
 void cometdown() {
     unsigned long cometDwnMillis = tm;
- 
     if (cometDwnMillis - previousCometDwnMillis >= COMETDELAY) {
        previousCometDwnMillis = cometDwnMillis;
        if ( isc > 0) {
@@ -320,7 +332,6 @@ void cometdown() {
 }
 void star1down() {
     unsigned long star1DwnMillis = tm;
- 
     if (star1DwnMillis - previousStar1DwnMillis >= STAR1DELAY) {
        previousStar1DwnMillis = star1DwnMillis;
        if ( is > 0) {
@@ -335,7 +346,6 @@ void star1down() {
 }
 void star2down() {
     unsigned long star2DwnMillis = tm;
- 
     if (star2DwnMillis - previousStar2DwnMillis >= STAR2DELAY) {
        previousStar2DwnMillis = star2DwnMillis;
        if ( is2 > 0) {
@@ -360,15 +370,18 @@ void skydown() {
     cometdown();
    //Serial.print("night ");Serial.print(daybr);Serial.print("-");Serial.print(tm);Serial.print("\n");
    if (daybr > 50 && daybr < 75) {
-       homeleds.setPixelColor(2,255,100,0);      homeleds.setPixelColor(3,255,100,0);
+       homeleds.setPixelColor(2,255,100,0);
+       homeleds.setPixelColor(3,255,100,0);
        homeleds.show();
     }
     if (daybr > 25 && daybr < 50) {
-       homeleds.setPixelColor(0,255,100,0);      homeleds.setPixelColor(1,255,100,0);
+       homeleds.setPixelColor(0,255,100,0);
+       homeleds.setPixelColor(1,255,100,0);
        homeleds.show();
     }
     if (daybr > 0 && daybr < 25) {
-       homeleds.setPixelColor(6,255,100,0);     homeleds.setPixelColor(7,255,100,0);
+       homeleds.setPixelColor(6,255,100,0);
+       homeleds.setPixelColor(7,255,100,0);
        homeleds.show();
     }
    if (daybr >0) {
@@ -437,6 +450,40 @@ void wat() {
    watleds.show();
    }
 }
+void bgup(){
+    unsigned long bgupMillis = tm;
+    if (bgupMillis - previousbgupMillis >= BGDELAY) {
+      previousbgupMillis = bgupMillis;
+      for (int ip=0; ip<BACKN; ip++)
+        {
+           int r = 150;
+           int g = 50;
+           int b = 0;
+           backleds.setPixelColor(ip,r,g,b);
+           backleds.setBrightness(bgbr);
+        }
+    backleds.show();
+    if (bgbr < 255) {
+      bgbr++;
+    }
+}
+void bgdown(){
+    unsigned long bgdownMillis = tm;
+    if (bgdownMillis - previousbgdownMillis >= BGDELAY) {
+      previousbgdownMillis = bgdownMillis;
+      for (int ip=0; ip<BACKN; ip++)
+        {
+           int r = 150;
+           int g = 40;
+           int b = 0;
+           backleds.setPixelColor(ip,r,g,b);
+           backleds.setBrightness(bgbr);
+        }
+    backleds.show();
+    if (bgbr > 0) {
+      bgbr--;
+    }
+}
 void clearLEDs(){
   for (int i=0; i<FIREN; i++)
   {
@@ -461,5 +508,5 @@ void clearLEDs(){
   for (int i=0; i<BACKN; i++)
   {
     backleds.setPixelColor(i, 0);
-  }  
+  }
 }
